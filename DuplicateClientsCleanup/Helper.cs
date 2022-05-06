@@ -58,19 +58,27 @@ namespace DuplicateClientsCleanup
         // checking names here for , and whitespaces at the end
         public static bool checkSimilarNames(List<ClientModel> clientModel)
         {
-            // Remove ',' from the end
-            foreach (var client in clientModel)
+            try
             {
-                // cleanup on names, removing whitespaces and , from last name only and getting a full name string to compare, also ignoring case
-                var name = client.FirstName + client.MiddleName + client.LastCorpName;
-                name = name.TrimEnd();
-                if (name.EndsWith(','))
+                // Remove ',' from the end
+                foreach (var client in clientModel)
                 {
-                    name = name.Remove(name.Length - 1);
+                    // cleanup on names, removing whitespaces and , from last name only and getting a full name string to compare, also ignoring case
+                    var name = client.FirstName + client.MiddleName + client.LastCorpName;
+                    name = name.TrimEnd();
+                    if (name.EndsWith(','))
+                    {
+                        name = name.Remove(name.Length - 1);
+                    }
+                    client.FullName = name.ToLower();
                 }
-                client.FullName = name.ToLower();
+                return clientModel.All(x => x.FullName == clientModel.First().FullName);
             }
-            return clientModel.All(x => x.FullName == clientModel.First().FullName);
+            catch(Exception ex)
+            {
+                Console.WriteLine("Error Cleaning Names " + ex.Message);
+                return false;
+            }
         }
     }
 }
